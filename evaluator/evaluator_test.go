@@ -325,6 +325,39 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len("hello world")`, 11},
 		{`len(1)`, "argument to `len` not supported, got INTEGER"},
 		{`len("one", "two")`, "wrong number of arguments. expected=1, got=2"},
+		{`len([])`, 0},
+		{`len([5])`, 1},
+		{`len([1, 2, 3])`, 3},
+		{`len([[[]]])`, 1},
+
+		{`first([5, 2, 3])`, 5},
+		{`first([1, 7, 8])`, 1},
+		{`first([10])`, 10},
+		{`first([])`, nil},
+		{`first([5, 7], [4])`, "wrong number of arguments. expected=1, got=2"},
+		{`first(10)`, "argument to `first` not supported, got INTEGER"},
+
+		{`last([5, 2, 3])`, 3},
+		{`last([1, 7, 8])`, 8},
+		{`last([10])`, 10},
+		{`last([])`, nil},
+		{`last([5, 7], [4])`, "wrong number of arguments. expected=1, got=2"},
+		{`last(10)`, "argument to `last` not supported, got INTEGER"},
+
+		{`rest([5, 2, 3])`, []int{2, 3}},
+		{`rest([1, 7, 8])`, []int{7, 8}},
+		{`rest([10])`, []int{}},
+		{`rest([])`, nil},
+		{`rest([5, 7], [4])`, "wrong number of arguments. expected=1, got=2"},
+		{`rest(10)`, "argument to `rest` not supported, got INTEGER"},
+
+		{`push([5, 2, 3], 7)`, []int{5, 2, 3, 7}},
+		{`push([1, 7, 8], 5)`, []int{1, 7, 8, 5}},
+		{`push([10], 4)`, []int{10, 4}},
+		{`push([], 2)`, []int{2}},
+		{`push([5, 7], [4], [2])`, "wrong number of arguments. expected=2, got=3"},
+		{`push([5, 7])`, "wrong number of arguments. expected=2, got=1"},
+		{`push(10, 2)`, "argument to `push` not supported, got INTEGER"},
 	}
 
 	for _, tt := range tests {
@@ -344,6 +377,22 @@ func TestBuiltinFunctions(t *testing.T) {
 				t.Errorf("wrong error message. expected=%q, got=%q",
 					expected, errObj.Message)
 			}
+		case []int:
+			arrObj, ok := evaluated.(*object.Array)
+			if !ok {
+				t.Errorf("object is not Array. got=%T (%+v)",
+					evaluated, evaluated)
+				continue
+			}
+			if len(arrObj.Elements) != len(expected) {
+				t.Errorf("array length does not match. expected=%d, got=%d",
+					len(expected), len(arrObj.Elements))
+			}
+			for i, e := range expected {
+				testIntegerObject(t, arrObj.Elements[i], int64(e))
+			}
+		case nil:
+			testNullObject(t, evaluated)
 		}
 	}
 }
