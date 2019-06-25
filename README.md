@@ -65,13 +65,13 @@ map(numbers, fibonacci);
 // => returns: [1, 1, 2, 3, 5, 8]
 ```
 
-# Running the REPL
+## Running the REPL
 
 To run the REPL (run-eval-print loop) interpreter, run
 
     go run main.go
 
-# Running the Tests
+## Running the Tests
 
 To run automated tests in all of the packages, run
 
